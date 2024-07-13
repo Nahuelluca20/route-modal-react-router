@@ -4,12 +4,11 @@ import {
   LoaderFunctionArgs,
   useLoaderData,
   useNavigate,
-  useNavigation,
-} from "react-router";
+} from "react-router-dom";
 import Modal from "react-bootstrap/Modal";
 import { Suspense } from "react";
 
-type pokemonData = {
+type PokemonData = {
   capture_rate: number;
   is_legendary: boolean;
   is_mythical: boolean;
@@ -18,17 +17,14 @@ type pokemonData = {
 
 interface IPokemonData {
   name: string | undefined;
-  info: pokemonData;
+  info: PokemonData;
 }
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export async function pokemonModaLoader({
   params,
 }: LoaderFunctionArgs): Promise<ReturnType<typeof defer>> {
-  await sleep(3000);
   const pokemonName = params["pokemon-name"];
-  const pokemonInfo = await fetch(
+  const pokemonInfo = fetch(
     `https://pokeapi.co/api/v2/pokemon-species/${pokemonName}`
   )
     .then((response) => response.json())
@@ -45,46 +41,55 @@ export async function pokemonModaLoader({
   });
 }
 
+const PokemonSkeleton = () => (
+  <div className="animate-pulse">
+    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+    <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+    <div className="h-4 bg-gray-200 rounded w-2/3 mb-2"></div>
+    <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+  </div>
+);
+
+const PokemonInfo = ({ info }: { info: PokemonData }) => (
+  <>
+    <h4>See Pokemon Info:</h4>
+    <ul className="p-0">
+      <li>
+        <b>Capture rate:</b> {info.capture_rate}
+      </li>
+      <li>
+        <b>Color:</b> {info.color}
+      </li>
+      <li>
+        <b>Is Legendary:</b> {info.is_legendary ? "Yes" : "No"}
+      </li>
+      <li>
+        <b>Is Mythical:</b> {info.is_mythical ? "Yes" : "No"}
+      </li>
+    </ul>
+  </>
+);
+
 export default function PokemonModal() {
-  const navigation2 = useNavigation();
-  console.log(navigation2);
-  const navigation = useNavigate();
-  const handleClose = () => navigation(-1);
+  const navigate = useNavigate();
+  const handleClose = () => navigate(-1);
   const pokemon = useLoaderData() as IPokemonData;
 
   return (
-    <>
-      <Modal show={true} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Data abount {pokemon.name}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Suspense fallback={<p>Loading package location...</p>}>
-            <Await
-              resolve={pokemon.info}
-              errorElement={<p>Error loading package location!</p>}
-            >
-              <h4>See Pokemon Info:</h4>
-              <ul className="p-0">
-                <li>
-                  <b>Capture rate:</b> {pokemon.info.capture_rate}
-                </li>
-                <li>
-                  <b>Color:</b> {pokemon.info.color}
-                </li>
-                <li>
-                  <b>Is Legendary:</b>{" "}
-                  {pokemon.info.is_legendary ? "Yes" : "No"}
-                </li>
-                <li>
-                  <b>Is Mysthical:</b> {pokemon.info.is_mythical ? "Yes" : "No"}
-                </li>
-              </ul>
-            </Await>
-          </Suspense>
-        </Modal.Body>
-        <Modal.Footer></Modal.Footer>
-      </Modal>
-    </>
+    <Modal show={true} onHide={handleClose}>
+      <Modal.Header closeButton>
+        <Modal.Title>Data about {pokemon.name}</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Suspense fallback={<PokemonSkeleton />}>
+          <Await
+            resolve={pokemon.info}
+            errorElement={<p>Error loading pokemon information!</p>}
+          >
+            <PokemonInfo info={pokemon.info} />
+          </Await>
+        </Suspense>
+      </Modal.Body>
+    </Modal>
   );
 }
