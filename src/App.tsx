@@ -1,6 +1,6 @@
 import viteLogo from "/vite.svg";
 import "./App.css";
-import { Link } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 
 function App() {
   return (
@@ -15,7 +15,8 @@ function App() {
         />
       </div>
       <h1 className="mt-2 mb-5">React Router Modals</h1>
-      <Link to={"/pokemons"}>See pokemons</Link>
+      <Link to={"pokemons"}>See pokemons</Link>
+      <Outlet />
     </>
   );
 }

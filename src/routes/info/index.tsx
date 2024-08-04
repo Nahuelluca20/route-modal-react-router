@@ -11,5 +11,5 @@ export async function infoLoader({ request }: LoaderFunctionArgs) {
 
 export default function Info() {
   const data = useLoaderData() as InfoData;
-  return <div>{data.data}</div>;
+  return <div>info {data.data}</div>;
 }

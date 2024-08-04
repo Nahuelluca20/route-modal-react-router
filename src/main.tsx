@@ -1,5 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import ReactDOM from "react-dom/client";
-import App from "./App.tsx";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
@@ -10,12 +10,23 @@ import PokemonModal, {
   pokemonModaLoader,
 } from "./routes/pokemons/pokemon-modal/index.tsx";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { routes } from "./routes/remoteRoutes.tsx";
+
+import App from "./App.tsx";
+import React from "react";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+    children: [...routes],
   },
+  // {
+  //   ...rootRoute,
+  //   id: "root",
+  //   path: "/",
+  //   children: [...routes],
+  // },
   {
     path: "/info",
     loader: infoLoader,
@@ -40,6 +51,9 @@ const router = createBrowserRouter([
   // },
 ]);
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <RouterProvider router={router} />
+const root = ReactDOM.createRoot(document.getElementById("root")!);
+root.render(
+  <React.StrictMode>
+    <RouterProvider router={router} />
+  </React.StrictMode>
 );
